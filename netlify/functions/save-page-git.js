@@ -1,16 +1,28 @@
 /**
- * Commits updated HTML to GitHub so Netlify can rebuild (live-ish editing).
+ * Commits updated HTML to GitHub so Netlify can rebuild.
  *
- * Netlify env (Site settings → Environment variables):
- *   GITHUB_TOKEN      — fine-grained or classic PAT with Contents: Read/Write on this repo
- *   GITHUB_OWNER      — e.g. your-username or org name
- *   GITHUB_REPO       — repo name (no .git)
- *   GITHUB_BRANCH     — optional, default main
- *   EDITOR_USER       — must match editor login username
- *   EDITOR_PASS       — must match editor login password
+ * Netlify → Site settings → Environment variables:
+ *   GITHUB_TOKEN       — classic PAT (repo scope) OR fine-grained: Contents Read/Write on this repo
+ *   GITHUB_OWNER       — user or org name (exactly as in repo URL)
+ *   GITHUB_REPO        — repo name only
+ *   GITHUB_BRANCH      — branch Netlify builds from (often main or master)
+ *   GITHUB_BASE_PATH   — optional, e.g. "docs" or "public" if HTML lives in a subfolder (no leading/trailing slash)
+ *   EDITOR_USER / EDITOR_PASS — must match editor login
  */
 
 const GH_API = 'https://api.github.com';
+
+function githubErrorMessage(text) {
+  if (!text || typeof text !== 'string') return text;
+  try {
+    const j = JSON.parse(text);
+    if (j.message) return j.message;
+    if (j.error) return typeof j.error === 'string' ? j.error : JSON.stringify(j.error);
+  } catch (e) {
+    /* not JSON */
+  }
+  return text.slice(0, 800);
+}
 
 exports.handler = async (event) => {
   const headers = {
@@ -57,10 +69,11 @@ exports.handler = async (event) => {
     return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
   }
 
-  const token = process.env.GITHUB_TOKEN;
-  const owner = process.env.GITHUB_OWNER;
-  const repo = process.env.GITHUB_REPO;
-  const branch = process.env.GITHUB_BRANCH || 'main';
+  const token = (process.env.GITHUB_TOKEN || '').trim();
+  const owner = (process.env.GITHUB_OWNER || '').trim();
+  const repo = (process.env.GITHUB_REPO || '').trim();
+  let branch = (process.env.GITHUB_BRANCH || 'main').trim();
+  const basePath = (process.env.GITHUB_BASE_PATH || '').replace(/^\/+|\/+$/g, '');
 
   if (!token || !owner || !repo) {
     return {
@@ -72,8 +85,17 @@ exports.handler = async (event) => {
     };
   }
 
-  if (!file || typeof file !== 'string' || file.includes('..') || file.includes('/') || file.includes('\\')) {
+  if (!file || typeof file !== 'string' || file.includes('..') || file.includes('\\')) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid file name' }) };
+  }
+  if (file.includes('/') && !basePath) {
+    return {
+      statusCode: 400,
+      headers,
+      body: JSON.stringify({
+        error: 'Use GITHUB_BASE_PATH instead of slashes in file name',
+      }),
+    };
   }
   if (!/\.html$/i.test(file)) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Only .html files allowed' }) };
@@ -82,29 +104,51 @@ exports.handler = async (event) => {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing fullHtml' }) };
   }
 
-  const pathEncoded = file
+  const relativePath = basePath ? `${basePath}/${file}` : file;
+  const pathEncoded = relativePath
     .split('/')
     .filter(Boolean)
     .map(encodeURIComponent)
     .join('/');
-  const url = `${GH_API}/repos/${owner}/${repo}/contents/${pathEncoded}?ref=${encodeURIComponent(branch)}`;
 
   const ghHeaders = {
     Authorization: `Bearer ${token}`,
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'netlify-save-page-git',
   };
 
-  const getRes = await fetch(url, { headers: ghHeaders });
+  const contentsUrl = `${GH_API}/repos/${owner}/${repo}/contents/${pathEncoded}`;
+  const getUrl = `${contentsUrl}?ref=${encodeURIComponent(branch)}`;
+
+  const getRes = await fetch(getUrl, { headers: ghHeaders });
   let sha = null;
+
   if (getRes.status === 404) {
+    const errText = await getRes.text();
+    const msg = githubErrorMessage(errText);
+    if (msg && msg.toLowerCase().includes('no commit found for the ref')) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({
+          error: 'Wrong branch',
+          detail:
+            `Branch "${branch}" was not found. Set GITHUB_BRANCH to your default branch (often main or master). GitHub said: ${msg}`,
+        }),
+      };
+    }
     sha = null;
   } else if (!getRes.ok) {
-    const detail = await getRes.text();
+    const errText = await getRes.text();
     return {
       statusCode: 502,
       headers,
-      body: JSON.stringify({ error: 'GitHub read failed', detail: detail.slice(0, 400) }),
+      body: JSON.stringify({
+        error: 'GitHub read failed',
+        detail: githubErrorMessage(errText),
+        hint: 'Check GITHUB_OWNER, GITHUB_REPO, token repo access, and branch name.',
+      }),
     };
   } else {
     const meta = await getRes.json();
@@ -113,13 +157,15 @@ exports.handler = async (event) => {
 
   const content = Buffer.from(fullHtml, 'utf8').toString('base64');
   const putPayload = {
-    message: `Site editor: update ${file}`,
+    message: `Site editor: update ${relativePath}`,
     content,
     branch,
   };
-  if (sha) putPayload.sha = sha;
+  if (sha) {
+    putPayload.sha = sha;
+  }
 
-  const putRes = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/${pathEncoded}`, {
+  const putRes = await fetch(contentsUrl, {
     method: 'PUT',
     headers: {
       ...ghHeaders,
@@ -129,11 +175,32 @@ exports.handler = async (event) => {
   });
 
   if (!putRes.ok) {
-    const detail = await putRes.text();
+    const errText = await putRes.text();
+    const ghMsg = githubErrorMessage(errText);
+    let hint = '';
+    if (/sha/i.test(ghMsg) && /wasn\'t supplied|required|mismatch/i.test(ghMsg)) {
+      hint =
+        ' The file may have moved or the branch is wrong. Set GITHUB_BASE_PATH if the site lives in a subfolder. If the default branch is master, set GITHUB_BRANCH=master.';
+    }
+    if (/403|Resource not accessible|permission/i.test(ghMsg)) {
+      hint =
+        ' Token needs repo access: classic PAT with "repo" scope, or fine-grained with Contents Read/Write. For org repos, authorize the token for SSO (GitHub → Settings → Applications → Authorized OAuth apps).';
+    }
+    if (/saml|sso/i.test(ghMsg)) {
+      hint =
+        ' Open github.com/settings/tokens → your token → Configure SSO → Authorize for this organization.';
+    }
+    if (/404/.test(String(putRes.status))) {
+      hint =
+        ' Repo or path not found. Confirm owner/repo name and GITHUB_BASE_PATH if files are not at repo root.';
+    }
     return {
       statusCode: 502,
       headers,
-      body: JSON.stringify({ error: 'GitHub write failed', detail: detail.slice(0, 400) }),
+      body: JSON.stringify({
+        error: 'GitHub write failed',
+        detail: ghMsg + hint,
+      }),
     };
   }
 
@@ -142,7 +209,7 @@ exports.handler = async (event) => {
     headers,
     body: JSON.stringify({
       success: true,
-      message: `${file} committed to ${branch}. Netlify will rebuild shortly.`,
+      message: `${relativePath} committed to ${branch}. Netlify will rebuild shortly.`,
     }),
   };
 };
