@@ -1,0 +1,29 @@
+HTTrack3.49-2+htsswf+htsjava launched on Wed, 15 Apr 2026 12:58:01 at https://www.forherpilates.com.au/ +*.png +*.gif +*.jpg +*.jpeg +*.css +*.js -ad.doubleclick.net/* -mime:application/foobar
+(winhttrack -qwC2%Ps2u1%s%uN0%I0p3DaK0H0%kf2A25000%f#f -F "Mozilla/4.5 (compatible; HTTrack 3.0x; Windows 98)" -%F "<!-- Mirrored from %s%s by HTTrack Website Copier/3.x [XR&CO'2014], %s -->" -%l "en, *" https://www.forherpilates.com.au/ -O1 "D:\Shiv\Shiv" +*.png +*.gif +*.jpg +*.jpeg +*.css +*.js -ad.doubleclick.net/* -mime:application/foobar )
+
+Information, Warnings and Errors reported for this mirror:
+note:	the hts-log.txt file, and hts-cache folder, may contain sensitive information,
+	such as username/password authentication for websites mirrored in this project
+	do not share these files/folders if you want these information to remain private
+
+13:01:45	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/about-us (from https://www.forherpilates.com.au/)
+13:01:45	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/"https://www.instagram.com/reel/DU1-DflEkRG/embed/"></iframe>" (from https://www.forherpilates.com.au/)
+13:01:45	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/"https://www.instagram.com/reel/DT7AHkbgMq9/embed/"></iframe>" (from https://www.forherpilates.com.au/)
+13:01:45	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/"https://www.instagram.com/reel/DTMuL6XEqaC/embed/"></iframe>" (from https://www.forherpilates.com.au/)
+13:01:46	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/how it works (from https://www.forherpilates.com.au/)
+13:01:48	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/signals/config/ (from https://connect.facebook.net/en_US/fbevents.js)
+13:01:48	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/t (from https://connect.facebook.net/en_US/fbevents.js)
+13:01:48	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/e (from https://connect.facebook.net/en_US/fbevents.js)
+13:01:48	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/signals/plugins/ (from https://connect.facebook.net/en_US/fbevents.js)
+13:01:48	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/schema.org/ (from https://connect.facebook.net/en_US/fbevents.js)
+13:01:48	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/t.resolvedLink (from https://connect.facebook.net/en_US/fbevents.js)
+13:01:48	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/o (from https://connect.facebook.net/en_US/fbevents.js)
+13:01:48	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/signals/iwl.js (from https://connect.facebook.net/en_US/fbevents.js)
+13:01:48	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/signals/iwl.js?pixel_id= (from https://connect.facebook.net/en_US/fbevents.js)
+13:01:48	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/n.dl (from https://connect.facebook.net/en_US/fbevents.js)
+13:01:48	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/n.rl (from https://connect.facebook.net/en_US/fbevents.js)
+13:01:51	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/"https://momence.com/plugin/lead-form/lead-form.js/"/n></script>/n/n<style>/n:root (from https://www.forherpilates.com.au/about)
+13:01:51	Error: 	"Not Found" (404) at link https://www.forherpilates.com.au/"https://www.youtube.com/embed/P1KcylFKo_g?si=ZSRFlHd89JgCLbIp\%22 (from https://www.forherpilates.com.au/orientation)
+
+HTTrack Website Copier/3.49-2 mirror complete in 3 minutes 50 seconds : 172 links scanned, 153 files written (26382104 bytes overall) [11490600 bytes received at 49959 bytes/sec], 21995615 bytes transferred using HTTP compression in 121 files, ratio 22%, 1.3 requests per connection
+(18 errors, 0 warnings, 0 messages)

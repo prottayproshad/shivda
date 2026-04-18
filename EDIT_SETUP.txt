@@ -1,0 +1,77 @@
+================================================================================
+  SIMPLE WEBSITE EDITOR - QUICK START
+================================================================================
+
+WHAT YOU NEED:
+- Python 3 (with Flask and BeautifulSoup4 installed)
+
+STEP 1: Install Python packages (run once)
+  pip install flask flask-cors beautifulsoup4
+
+STEP 2: Start the backend server
+  python simple_admin_backend.py
+  
+  You should see:
+  * Running on http://localhost:5000
+  * WARNING: Never use the development server in production!
+  * (keep this window OPEN and DON'T CLOSE IT while editing)
+
+STEP 3: Open index.html in your browser
+  - Right-click index.html → Open with → Browser
+  - OR drag index.html into your browser
+  - Look for green "✓ Connected" indicator in bottom-right corner
+
+STEP 4: Click the "Login" link (top-right corner of website header)
+  - Username: admin
+  - Password: admin123
+  - Click Login
+
+STEP 5: You're now in EDIT MODE
+  - Click any text to edit it
+  - Click any image to change the image URL
+  - Changes appear instantly in the page
+  - You can edit multiple items
+
+STEP 6: Save your changes
+  - Click the blue "💾 Save" button in the toolbar
+  - Your changes are now saved to the file permanently!
+  - You can reload the page and see your changes persist
+
+STEP 7: Exit edit mode
+  - Click "Exit" button to stop editing
+  - Click "Logout" to logout completely
+
+================================================================================
+TROUBLESHOOTING:
+
+❌ "Backend not running! Make sure start_backend.bat is open"
+   → The message is telling you the backend is offline
+   → Double-click start_backend.bat 
+   → Wait for it to say "Running on http://localhost:5000"
+   → Keep it open (DON'T close the window)
+   → Refresh your browser (press F5)
+   → Try saving again
+
+❌ Backend window closed or says "Address already in use"
+   → Close the backend window
+   → Wait 3 seconds
+   → Double-click start_backend.bat again
+
+❌ Still getting errors after backend is running?
+   → Make sure the backend shows: "Running on http://localhost:5000"
+   → Wait 2 seconds after starting backend
+   → Check bottom-right corner of page for "✓ Connected" indicator
+   → If still red/offline, close browser and refresh (F5)
+
+================================================================================
+NOTES:
+- The backend MUST be running for changes to save to the file
+- All changes are backed up automatically as index.html.bak
+- Only index.html can be edited for now
+- Login credentials: admin / admin123
+- Green indicator in bottom-right shows backend connection status
+- Click the "Login" link in the website header to open login popup
+
+IMPORTANT: Always keep the backend window (start_backend.bat) RUNNING while editing!
+================================================================================
+

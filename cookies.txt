@@ -1,0 +1,4 @@
+# HTTrack Website Copier Cookie File
+# This file format is compatible with Netscape cookies
+www.forherpilates.com.au	TRUE	/	FALSE	1999999999	crumb	BQIckQj8YOXlNjU2MmUyNzUwNjBmOTQ1MGFiMzEyYTA0NjU1YzA3
+
