@@ -579,10 +579,16 @@
           return r.json().then(function (data) {
             clearTimeout(tid);
             if (!r.ok) {
-              toast(
-                String(data.error || data.detail || r.statusText || 'Save failed').slice(0, 220),
-                true
-              );
+              var msg =
+                data.detail ||
+                data.hint ||
+                data.error ||
+                r.statusText ||
+                'Save failed';
+              if (data.error && data.detail && data.detail !== data.error) {
+                msg = data.error + ': ' + data.detail;
+              }
+              toast(String(msg).slice(0, 500), true);
               return;
             }
             if (data.success) {
@@ -592,7 +598,7 @@
                   'Committed — GitHub updated; wait for Netlify to finish rebuilding (~1–2 min).'
               );
             } else {
-              toast(String(data.error || 'Save failed').slice(0, 220), true);
+              toast(String(data.error || data.detail || 'Save failed').slice(0, 500), true);
             }
           });
         })
